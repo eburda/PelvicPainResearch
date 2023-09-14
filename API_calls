@@ -1,0 +1,18 @@
+token <- "PUT YOUR TOKEN HERE"                                     #contact your organization for your REDCAP token to access the raw data
+url <- "https://survey.northshore.org/api/"                        #link to your organziation's REDCAP 
+formData <- list("token"=token,
+    content='record',
+    action='export',
+    format='csv',
+    type='flat',
+    csvDelimiter='',
+    rawOrLabel='raw',
+    rawOrLabelHeaders='raw',
+    exportCheckboxLabel='false',
+    exportSurveyFields='false',
+    exportDataAccessGroups='false',
+    returnFormat='csv'                                              #output as a csv file
+)
+response <- httr::POST(url, body = formData, encode = "form")
+result <- httr::content(response)
+print(result)
