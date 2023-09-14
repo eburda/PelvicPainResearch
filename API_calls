@@ -1,3 +1,5 @@
+#This file provides RStudio code to run an API call to REDCAP. REDCAP API Playground provides the code for API calls in many coding languages.
+
 token <- "PUT YOUR TOKEN HERE"                                     #contact your organization for your REDCAP token to access the raw data
 url <- "https://survey.northshore.org/api/"                        #link to your organziation's REDCAP 
 formData <- list("token"=token,
