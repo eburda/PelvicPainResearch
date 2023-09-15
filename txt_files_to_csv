@@ -1,1 +1,96 @@
 #This code takes a folder of txt files, selects the data listed, and creates a csv file with the appropriate columns and information
+
+import os
+import re
+import pandas as pd
+
+def extract_subject_id(line):                                                                  #pulls the subject id from each file
+    match = re.search(r'EH17-338-(\d+)-1', line)                                               #insert whatever text surrounds the subject id                 
+    if match:
+        subject_id = match.group(1)
+        print("Extracted Subject ID:", subject_id)
+        return subject_id
+    return None
+
+def extract_date(line):                                                                        #pulls the date from each file
+    match = re.search(r'\d{2}-\d{2}-\d{4}', line)
+    if match:
+        date = match.group()
+        print("Extracted Date:", date)
+        return date
+    return None
+
+def extract_time(line):                                                                        #pulls the time from each file 
+    match = re.search(r'\d{2}:\d{2}:\d{2}', line)
+    if match:
+        time = match.group()
+        print("Extracted Time:", time)
+        return time
+    return None
+
+def extract_data_from_txt(file_path, subject_id, date, time, filename):
+    data_list = []
+    with open(file_path, 'r', encoding='utf-8') as txt_file:
+        for _ in range (14):                                                                    #replace 14 with however many rows down the data that you want to extract starts
+            next(txt_file)
+
+        for line in txt_file:
+            print("Line:", line)
+            parts = line.strip().split()                                                        #splits all data in the file by space between words
+            print("Extracted parts:", parts)                                                    #check so you can see exactly what you are extracting (delete if no longer needed)
+
+            try:
+                if len(parts) >= 7:
+                    site, strain, rate, duration = int(parts[1]),str(parts[2]), float(parts[3]), float(parts[4])
+                    data_list.append({'subject_id': subject_id, 'date': date, 'time': time, 'site': site, 'strain': strain, 'rate': rate, 'duration': duration, 'filename': filename})      #all the data you are extracting
+            except Exception as e:                                                                #exception in place in case of errors in the file
+                print(f"Skipping row {line} due to error:", e)
+                continue
+    return data_list
+
+def main():
+    input_directory = r'C:\Users\embur\EMPATHY EH17-338\PPT'                                      #change to file directory where you are pulling the text files from
+    all_data = []
+    for root, _, files in os.walk(input_directory):
+        for file in files:
+            if file.endswith('txt') and 'EH17-338' in file:                                        #only runs through txt files with the study name in them
+                print("Processing:", file)                                                         #a check to guarantee the file that is being processes is the correct one
+                txt_file_path = os.path.join(root, file)
+                subject_id = None
+                date = None
+                time = None
+
+                with open(txt_file_path, 'r', encoding='utf-8') as txt_file:      
+                    for line_num, line in enumerate(txt_file, start=1):
+                        if line_num == 3: 
+                            subject_id = extract_subject_id(line)                                  #extracts sub id at line 3
+                        elif line_num == 14:
+                            date = extract_date(line)                                              #extracts date and time at line 14
+                            time = extract_time(line)
+                            if subject_id and date and time:
+                                break
+
+                if subject_id and date and time:
+                    filename = os.path.basename(txt_file_path)
+                    data_list = extract_data_from_txt(txt_file_path, subject_id, date, time, filename)
+                    all_data.extend(data_list)
+    
+
+    try:
+        df = pd.DataFrame(all_data, columns=['subject_id', 'date', 'time', 'site', 'strain', 'rate', 'duration', 'filename'])
+        print(df)
+
+        output_csv_file = r'C:\Users\embur\EMPATHY EH17-338\Output\output_spreadsheetPV1updated.csv'
+
+        df.to_csv(output_csv_file, index=False, encoding = 'utf-8')
+
+        print("CSV file successfully created.")
+
+    except Exception as e:
+        print("An error occurred:", e)
+
+if __name__ == "__main__":
+    main()
+
+
+
