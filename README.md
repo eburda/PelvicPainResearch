@@ -1,20 +1,23 @@
 Pelvic Pain Research Lab
 
-This repository contains the code for variable data analyses, process improvement scripts, and descriptive visualizations. These resources and analyses are part of the ongoing effort of the Pelvic Pain (Tu/Hellman) Lab of Evanston, IL in the study of the mechanisms of pelvic pain including menstrual pain and chronic pain. This read.me file includes a directory of all scripts and visualizations in this repository, divided into categories of visualizations, statistical analyses, and scripts. Each file will contain greater detail on the specific item in the comments. The date will also be provided, as almost all of the scripts, analyses, and visualizations will need to be re-run as more data is collected and more studies are started. The majority of the resources in this repository were performed for a study that the Pelvic Pain Team is running studying teens pre- and post-menarche.
+This repository contains the code for variable data analyses, process improvement scripts, and descriptive visualizations. These resources and analyses are part of the ongoing effort of the Pelvic Pain (Tu/Hellman) Lab of Evanston, IL in the study of the mechanisms of pelvic pain including menstrual pain and chronic pain. This read.me file includes a directory of all scripts and visualizations in this repository, divided into projects that contain visualizations, statistical analyses, and scripts. There are also scripts ad visualizations not assigned to a project as they are more general or not project-specific. Each file will contain greater detail on the specific code in the comments. The date will also be provided, as almost all of the scripts, analyses, and visualizations will need to be re-run as more data is collected and more studies are started. The majority of the resources in this repository were performed for a study that the Pelvic Pain Team is running studying teens pre- and post-menarche.
 
 The majority of items in this repo were developed in Rstudio using R version (?), and there are a few items that were developed in Visual Studio Code utilizing Python.
 
 
-DIRECTORY:
+Project Directory:
 
-~GRAPHS
+EMPATHY_covid_data
+- Correlational matrices of Covid EMPATHY data
+EMPATHY_diaries
 
-~SCRIPTS
+API_calls
+- API calls to REDCAP
+  
+Process_improvement_scripts
+- PPT text files to Microsoft Excel csv
+- Selection of eligible participants
 
-PPT text files to Microsoft Excel csv
-API calls to REDCAP 
-Selection of eligible participants
 
-~STATISTICAL ANALYSES
 
-Correlational matrices of Covid EMPATHY data
+
