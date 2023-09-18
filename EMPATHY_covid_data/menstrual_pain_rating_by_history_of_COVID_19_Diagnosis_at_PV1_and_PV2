@@ -1,8 +1,13 @@
+#This code creates 2 visualizations to depict menstrual pain ratings of children, split by whether they or their family have had a positive COVID-19 diagnosis
+#The first part of the code creates a boxplot for this analysis for data collected at PV1
+#The second part of the code below the line creates a boxplot for this analysis for data collected at PV2
+
 install.packages("tidyverse")
 install.packages("ggplot")
 library(tidyverse)
 library(ggplot2)
- 
+
+#call the data - can also be an API call to REDCAP
 dataNEW <- read.csv("/Users/embur/Downloads/EH17338EMPATHY_data_2023-06-16_1348.csv")
 
 coviddataNEWParent <- dataNEW %>% select(redcap_event_name, cg_covid_q1, record_id) %>%  filter(redcap_event_name == "visit_1_parent_arm_1" | redcap_event_name == "visit_2_parent_arm_1")
@@ -18,10 +23,24 @@ paindataNEWChild %>% na.omit(paindataNEWChild)
 coviddataNEWParent$cg_covid_q1[coviddataNEWParent$cg_covid_q1 == 0] <- "No COVID-19 Diagnosis"
 coviddataNEWParent$cg_covid_q1[coviddataNEWParent$cg_covid_q1 == 1] <- "Yes COVID-19 Diagnosis"
 
+#PV1 Boxplot
 PV1datCov <- coviddataNEWParent %>% select(record_id, redcap_event_name, cg_covid_q1) %>% filter(redcap_event_name == "PV1") 
 PV1datPain <- paindataNEWChild %>% select(tanner_q3, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% na.omit(PV1datPain)
 PV1paincovid <- merge(x = PV1datCov, y = PV1datPain, by = "record_id")
 
 ggplot(data = PV1paincovid, aes(x = tanner_q3, fill = factor(cg_covid_q1))) + geom_boxplot() +  coord_flip() 
 + labs(title = "Menstrual Pain Ratings by History of COVID-19 Diagnosis at PV1", x ="Menstrual Pain Self-Rating", fill = "History of COVID-19") 
++ theme_classic() + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.position = "top")
+
+________________________________
+
+#PV2 Boxplot
+#uses similar code as above but variables are changed to PV2 instead of PV1
+#can run this entire script together or the first part for PV1 then this code for PV2
+PV2datCov <- coviddataNEWParent %>% select(record_id, redcap_event_name, cg_covid_q1) %>% filter(redcap_event_name == "PV2") 
+PV2datPain <- paindataNEWChild %>% select(tanner_q3, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV2")
+PV2paincovid <- merge(x = PV2datCov, y = PV2datPain, by = "record_id")
+
+ggplot(data = PV2paincovid, aes(x = tanner_q3, fill = factor(cg_covid_q1))) + geom_boxplot() +  coord_flip() 
++ labs(title = "Menstrual Pain Ratings by History of COVID-19 Diagnosis at PV2", x ="Menstrual Pain Self-Rating", fill = "History of COVID-19") 
 + theme_classic() + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.position = "top")
