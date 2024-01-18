@@ -1,9 +1,6 @@
 Promis_stress_total <- result %>% select(record_id, subject_id, promis_eos_p_011r1_c1b667, promis_eos_p_048r1_38a89a, promis_eos_p_063r1_3dce53, promis_eos_p_064r1_a4c868, promis_eos_p_067r1_9222a6, promis_eos_p_105r1_7be006, promis_eos_p_112r1_b3dead, promis_eos_p_118r1_d63498, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>% summarize(Promis_Stress_Total = sum(promis_eos_p_011r1_c1b667, promis_eos_p_064r1_a4c868, promis_eos_p_067r1_9222a6, promis_eos_p_048r1_38a89a, promis_eos_p_063r1_3dce53, promis_eos_p_105r1_7be006, promis_eos_p_112r1_b3dead, promis_eos_p_118r1_d63498)) %>% select(subject_id, Promis_Stress_Total, redcap_event_name)
-
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
-
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
-
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 
 
@@ -12,9 +9,16 @@ Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "
 Promis_affect_total <- result %>% select(record_id, subject_id, promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
 promis_swb_p_049r1_de1fe6, promis_swb_p_001r1_86f828, promis_swb_p_004r1_981e59, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>% summarize(Promis_Affect_Total = sum(promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
 promis_swb_p_049r1_de1fe6, promis_swb_p_001r1_86f828, promis_swb_p_004r1_981e59)) %>% select(subject_id, Promis_Affect_Total, redcap_event_name)
-
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
-
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
-
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+
+
+promis_affect_stress <- merge(x = Promis_affect_total, y = Promis_stress_total, by = c("subject_id", "redcap_event_name")) #%>% filter(subject_id != 1)# %>%filter( subject_id != 800)
+
+
+CSSI_total <- result %>% select(subject_id, csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>%  summarize(CSSI_sum = sum(csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24))
+CSSI_total$redcap_event_name[CSSI_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+CSSI_total$redcap_event_name[CSSI_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+CSSI_total$redcap_event_name[CSSI_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+
