@@ -33,3 +33,19 @@ duplicated_values <- CC_rc[duplicated(CC_rc$subject_id), "Subject_id"]
 
 
 NewTotals <- merge(x = promis_affect_stress, y = CC_rc, by = c("subject_id", "redcap_event_name")) %>% filter(subject_id != 1) %>%filter( subject_id != 800) %>% filter(subject_id != 81)
+
+
+Combined_data <- result %>% select(record_id, subject_id, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, tanner_q3, anxietyscore, depressionscore, redcap_event_name, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8) %>% filter(record_id != "1") %>%filter( subject_id != 800) %>% filter (subject_id != 81)
+
+Combined_data$redcap_event_name[Combined_data$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+Combined_data$redcap_event_name[Combined_data$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
+
+Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+
+Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+
+Merged_data <- merge(x = Combined_data, y = NewTotals, by = c("subject_id", "redcap_event_name"))
+Merged_data %>% select(record_id, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, tanner_q3, anxietyscore, depressionscore, redcap_event_name, Promis_Affect_Total, Promis_Stress_Total, CSSI_sum, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum, subject_id, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8)
