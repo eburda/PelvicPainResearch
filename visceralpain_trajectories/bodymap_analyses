@@ -1,9 +1,18 @@
+#This file contains the analyses and tables pertaining to the Body Map data, a questionnaire that asks about pain in 7 body areas over the previous 7 days.
+#Other measures of visceral and psychological pain were analyzed in addition to the Body Map data. All of the data was pulled from multiple sources including REDCap and multiple Excel files.
+
+#Install and load all necessary packages and libraries (tidyverse, ggplot, tableone, etc)
+
+#Make an API call to the REDCap Database for needed variables (Promis Stress vars, Promis Affect Vars 
+
+#Make a Promis Stress Total variable for each participant that is a sum of the Promis Stress vars 
+#NOTE: "result" is the name of the dataset of REDCap output 
 Promis_stress_total <- result %>% select(record_id, subject_id, promis_eos_p_011r1_c1b667, promis_eos_p_048r1_38a89a, promis_eos_p_063r1_3dce53, promis_eos_p_064r1_a4c868, promis_eos_p_067r1_9222a6, promis_eos_p_105r1_7be006, promis_eos_p_112r1_b3dead, promis_eos_p_118r1_d63498, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>% summarize(Promis_Stress_Total = sum(promis_eos_p_011r1_c1b667, promis_eos_p_064r1_a4c868, promis_eos_p_067r1_9222a6, promis_eos_p_048r1_38a89a, promis_eos_p_063r1_3dce53, promis_eos_p_105r1_7be006, promis_eos_p_112r1_b3dead, promis_eos_p_118r1_d63498)) %>% select(subject_id, Promis_Stress_Total, redcap_event_name)
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 
-
+#Make a Promis Affect Total variable for each participant that is a sum of the Promis Affect vars 
 Promis_affect_total <- result %>% select(record_id, subject_id, promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
 promis_swb_p_049r1_de1fe6, promis_swb_p_001r1_86f828, promis_swb_p_004r1_981e59, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>% summarize(Promis_Affect_Total = sum(promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
 promis_swb_p_049r1_de1fe6, promis_swb_p_001r1_86f828, promis_swb_p_004r1_981e59)) %>% select(subject_id, Promis_Affect_Total, redcap_event_name)
