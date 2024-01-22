@@ -88,3 +88,90 @@ Parent_data %>% filter(redcap_event_name == "BL" | redcap_event_name == "PV1" | 
 
 Final_merge <- merge(x = Parent_data, y = Merged_data, by = c("record_id", "redcap_event_name")) %>% filter(redcap_event_name != "phone_screen_arm_1" | redcap_event_name != "annual_year_1_arm_1") %>% filter(subject_id != 81)
 
+
+
+#Merge in BodyMap and Sensitivity Questionnaires Data
+#Load in excel files
+#NOTE: the location will differ based on where the files are saved on the local machine
+baseline_body_map_data <- read.csv("/Users/embur/OneDrive/Documents/DSCI101_updated/R/EMPATHY_visualizations/Tanner_Body Map_Fibromyalgia Data_BASELINE.csv")
+PV1_body_map_data <- read.csv("/Users/embur/OneDrive/Documents/DSCI101_updated/R/EMPATHY_visualizations/Tanner_Body Map_Fibromyalgia Data_PV1.csv")
+PV2_body_map_data <- read.csv("/Users/embur/OneDrive/Documents/DSCI101_updated/R/EMPATHY_visualizations/Tanner_Body Map_Fibromyalgia Data_PV2.csv")
+
+
+#Select necessary vars 
+baselineBodyMapTotal <- baseline_body_map_data %>% select(subject_id, BodyTotal, SensitivityTotal) 
+#Rename cols to account for each visit number when merged
+colnames(baselineBodyMapTotal)[2] <- ("BodyTotal BL")
+colnames(baselineBodyMapTotal)[3] <- ("SensitivityTotal BL")
+#Create binary var for widespread pain where if BodyTotal is less than 3, 0 is the value given, if BodyTotal is greater than 3, 1 is the value given
+baselineBodyMapTotal$'Widespread Pain (0/1) BL' <- ifelse(baselineBodyMapTotal$'BodyTotal BL' < 3, 0, 1)
+
+PV1BodyMapTotal <- PV1_body_map_data %>% select(BodyTotal, subject_id, SensitivityTotal) 
+colnames(PV1BodyMapTotal)[1] <- ("BodyTotal PV1")
+colnames(PV1BodyMapTotal)[3] <- ("SensitivityTotal PV1")
+PV1BodyMapTotal$'Widespread Pain (0/1) PV1' <- ifelse(PV1BodyMapTotal$'BodyTotal PV1' < 3, 0, 1)
+
+PV2BodyMapTotal <- PV2_body_map_data %>% select(BodyTotal, subject_id, SensitivityTotal) 
+colnames(PV2BodyMapTotal)[1] <- ("BodyTotal PV2")
+colnames(PV2BodyMapTotal)[3] <- ("SensitivityTotal PV2")
+PV2BodyMapTotal$'Widespread Pain (0/1) PV2' <- ifelse(PV2BodyMapTotal$'BodyTotal PV2' < 3, 0, 1)
+
+
+#Merge all visits together into one dataset
+bodyMap_total_over_time <- baselineBodyMapTotal %>%
+  full_join(PV1BodyMapTotal, by = c("subject_id")) %>%
+  full_join(PV2BodyMapTotal, by = c("subject_id"))
+
+
+#Transform data for SenstitivityTotal of each visit into one col with at most 3 rows of values for each participant
+combo <- bodyMap_total_over_time %>%  select(`SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`, subject_id) %>% pivot_longer(cols = c("SensitivityTotal BL", "SensitivityTotal PV1", "SensitivityTotal PV2"), names_to =  "redcap_event_name", values_to =  "SensitivityTotal")
+#Rename vars to remain consistent with other use of redcap_event_name
+combo$redcap_event_name[combo$redcap_event_name == "SensitivityTotal BL"] <- "BL"
+combo$redcap_event_name[combo$redcap_event_name == "SensitivityTotal PV1"] <- "PV1"
+combo$redcap_event_name[combo$redcap_event_name == "SensitivityTotal PV2"] <- "PV2"
+
+#Transform data for BodyTotal of each visit into one col with at most 3 rows of values for each participant
+new <- bodyMap_total_over_time %>% select(subject_id, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`) %>% pivot_longer(cols = c(`BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`), names_to = "redcap_event_name", values_to = "Body_Total")
+#Rename vars to remain consistent with other use of redcap_event_name
+new$redcap_event_name[new$redcap_event_name == "BodyTotal BL"] <- "BL"
+new$redcap_event_name[new$redcap_event_name == "BodyTotal PV1"] <- "PV1"
+new$redcap_event_name[new$redcap_event_name == "BodyTotal PV2"] <- "PV2"
+
+
+
+-------------------PICK UP HERE-----------------------------
+new_merge <- merge(x = combo, y = new, by = c("subject_id", "redcap_event_name"))
+new_new_merge <- merge(x = new_merge, y = bodyMap_total_over_time, by = c( "subject_id"))
+
+
+newer <- new_new_merge %>% pivot_longer (cols = -c(subject_id, redcap_event_name, Body_Total, SensitivityTotal, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, `SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`), names_to = "event", values_to ="Widespread Pain (0/1)" ) %>% select(subject_id, redcap_event_name, Body_Total, SensitivityTotal) %>% distinct () %>% mutate("Widespread Pain (0/1) (No/Yes)" = Body_Total < 3)
+
+newer$`Widespread Pain (0/1) (No/Yes)` <- ifelse(
+    
+        is.na(newer$Body_Total), NA,
+        ifelse (newer$Body_Total %in% c(0, 1, 2), 0, 1)
+)
+
+
+
+
+
+## Merge with rest of data
+
+FINAL_merge <- merge(x = newer, y = Final_merge, by = c("subject_id", "redcap_event_name")) %>% distinct() #%>% na.omit(FINAL_merge$subject_id)
+
+#FINAL_merge$Value[FINAL_merge$Value == "Non Widespread Pain (<3)"] <- "0"
+#FINAL_merge$Value[FINAL_merge$Value == "Widespread Pain (>=3)"] <- "1"
+
+
+#ADDING IN QST DATA -- but this is only the data for BL, but it is aslo applying itself to PV1 and PV2... just BE AWARE
+qst_baseline_data <- read.csv("C:/Users/embur/Downloads/Esleep_baseline_Final_11.6.22.csv")
+
+select_qst <- qst_baseline_data %>% mutate(redcap_event_name = "BL") %>% select(C1_Vis_Gracely_mean, C1_Vis_Gracely_slope, C1_Aud_Gracely_mean, C1_Aud_Gracely_slope, C1_PPTavg, C1_CPMchange, C1_CPMppt, C_ID, redcap_event_name)
+
+## rename sub id variable
+colnames(select_qst)[which(names(select_qst) == "C_ID")] <- "subject_id"
+
+
+qst_rc_bm_merge <- FINAL_merge %>% left_join(select_qst, by = c("subject_id", "redcap_event_name"))
+BL <- qst_rc_bm_merge %>% filter(redcap_event_name == "BL") 
