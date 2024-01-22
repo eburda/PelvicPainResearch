@@ -3,11 +3,13 @@
 
 #Install and load all necessary packages and libraries (tidyverse, ggplot, tableone, etc)
 
-#Make an API call to the REDCap Database for needed variables (Promis Stress vars, Promis Affect Vars 
+#Make an API call to the REDCap Database for needed variables (Promis Stress vars, Promis Affect vars, CSI vars, Pain Interference, Weekly Pain, 
 
 #Make a Promis Stress Total variable for each participant that is a sum of the Promis Stress vars 
-#NOTE: "result" is the name of the dataset of REDCap output 
+#NOTE: "result" is the name of the dataset of REDCap output, it will be used everytime data is called from the output
 Promis_stress_total <- result %>% select(record_id, subject_id, promis_eos_p_011r1_c1b667, promis_eos_p_048r1_38a89a, promis_eos_p_063r1_3dce53, promis_eos_p_064r1_a4c868, promis_eos_p_067r1_9222a6, promis_eos_p_105r1_7be006, promis_eos_p_112r1_b3dead, promis_eos_p_118r1_d63498, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>% summarize(Promis_Stress_Total = sum(promis_eos_p_011r1_c1b667, promis_eos_p_064r1_a4c868, promis_eos_p_067r1_9222a6, promis_eos_p_048r1_38a89a, promis_eos_p_063r1_3dce53, promis_eos_p_105r1_7be006, promis_eos_p_112r1_b3dead, promis_eos_p_118r1_d63498)) %>% select(subject_id, Promis_Stress_Total, redcap_event_name)
+
+#Rename redcap_event_name aka visit name to abbreviation that will be universal across all data
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
@@ -16,34 +18,39 @@ Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "
 Promis_affect_total <- result %>% select(record_id, subject_id, promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
 promis_swb_p_049r1_de1fe6, promis_swb_p_001r1_86f828, promis_swb_p_004r1_981e59, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>% summarize(Promis_Affect_Total = sum(promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
 promis_swb_p_049r1_de1fe6, promis_swb_p_001r1_86f828, promis_swb_p_004r1_981e59)) %>% select(subject_id, Promis_Affect_Total, redcap_event_name)
+
+#Rename redcap_event_name aka visit name to abbreviation that will be universal across all data
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 
-
+#Merge Promis Affect Total and Promis Stress Total into one dataset 
 promis_affect_stress <- merge(x = Promis_affect_total, y = Promis_stress_total, by = c("subject_id", "redcap_event_name")) #%>% filter(subject_id != 1)# %>%filter( subject_id != 800)
 
+#Make a CSI Total var for each participant that is a sum of the CSI vars
+CSI_total <- result %>% select(subject_id, csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>%  summarize(CSSI_sum = sum(csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24))
+#Rename redcap_event_name aka visit name to abbreviation that will be universal
+CSI_total$redcap_event_name[CSI_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+CSI_total$redcap_event_name[CSI_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+CSI_total$redcap_event_name[CSI_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 
-CSSI_total <- result %>% select(subject_id, csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>%  summarize(CSSI_sum = sum(csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24))
-CSSI_total$redcap_event_name[CSSI_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
-CSSI_total$redcap_event_name[CSSI_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
-CSSI_total$redcap_event_name[CSSI_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
-
-
+#Clinical Correlates -- These vars include Pain Intereference Score (REDCap), Weekly Pain (REDCap), Sensitivity Score on Body Map questionnaire
+#These measures are key variable indicatiors of pain besides the Body Map questionnaire
 ClinicalCorrelates_vars <- result %>% select(subject_id, redcap_event_name, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8) %>% group_by(subject_id, redcap_event_name) %>% summarise(PainInterfSum = sum(pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8))
 ClinicalCorrelates_vars$redcap_event_name[ClinicalCorrelates_vars$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
 ClinicalCorrelates_vars$redcap_event_name[ClinicalCorrelates_vars$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 ClinicalCorrelates_vars$redcap_event_name[ClinicalCorrelates_vars$redcap_event_name == "visit2_child_arm_1"] <- "PV2" 
 
-CC_rc <- merge(x = ClinicalCorrelates_vars, y = CSSI_total, by = c("subject_id", "redcap_event_name")) %>% filter( subject_id != 800) %>% filter(subject_id != 81) %>% filter(subject_id != 1) 
-
+#Merge Clinical Correlate vars with CSI total
+#filter out any test subjects (1) and any other weird subject id numbers aka any that are not even numbers from 2-600
+CC_rc <- merge(x = ClinicalCorrelates_vars, y = CSI_total, by = c("subject_id", "redcap_event_name")) %>% filter( subject_id != 800) %>% filter(subject_id != 81) %>% filter(subject_id != 1) 
+#Check for duplicates
 duplicated_values <- CC_rc[duplicated(CC_rc$subject_id), "Subject_id"]
 
-
-
+#Merge CC_rc with Promis Affect and Stress Totals
 NewTotals <- merge(x = promis_affect_stress, y = CC_rc, by = c("subject_id", "redcap_event_name")) %>% filter(subject_id != 1) %>%filter( subject_id != 800) %>% filter(subject_id != 81)
 
-
+------------ PICK UP HERE
 Combined_data <- result %>% select(record_id, subject_id, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, tanner_q3, anxietyscore, depressionscore, redcap_event_name, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8) %>% filter(record_id != "1") %>%filter( subject_id != 800) %>% filter (subject_id != 81)
 
 Combined_data$redcap_event_name[Combined_data$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
