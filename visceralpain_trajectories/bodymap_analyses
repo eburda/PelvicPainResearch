@@ -1,9 +1,13 @@
 #This file contains the analyses and tables pertaining to the Body Map data, a questionnaire that asks about pain in 7 body areas over the previous 7 days.
 #Other measures of visceral and psychological pain were analyzed in addition to the Body Map data. All of the data was pulled from multiple sources including REDCap and multiple Excel files.
 
+
 #Install and load all necessary packages and libraries (tidyverse, ggplot, tableone, etc)
 
-#Make an API call to the REDCap Database for needed variables (Promis Stress vars, Promis Affect vars, CSI vars, Pain Interference, Weekly Pain, 
+
+#Make an API call to the REDCap Database to access needed variables (Promis Stress vars, Promis Affect vars, CSI vars, Pain Interference, Weekly Pain, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, tanner_q3, anxietyscore, depressionscore, pedpro_pain_q1, rome_a_q1, rome_b_q1)
+#  LIST ALL ACTUAL VARS
+
 
 #Make a Promis Stress Total variable for each participant that is a sum of the Promis Stress vars 
 #NOTE: "result" is the name of the dataset of REDCap output, it will be used everytime data is called from the output
@@ -13,6 +17,7 @@ Promis_stress_total <- result %>% select(record_id, subject_id, promis_eos_p_011
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 Promis_stress_total$redcap_event_name[Promis_stress_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+
 
 #Make a Promis Affect Total variable for each participant that is a sum of the Promis Affect vars 
 Promis_affect_total <- result %>% select(record_id, subject_id, promis_swb_p_027r1_994f1a, promis_swb_p_025r1_39adb5, promis_swb_p_026r1_9de210, promis_swb_p_029r1_d9f50e, promis_swb_p_037r1_f6219a,
@@ -24,8 +29,10 @@ Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 Promis_affect_total$redcap_event_name[Promis_affect_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 
+
 #Merge Promis Affect Total and Promis Stress Total into one dataset 
 promis_affect_stress <- merge(x = Promis_affect_total, y = Promis_stress_total, by = c("subject_id", "redcap_event_name")) #%>% filter(subject_id != 1)# %>%filter( subject_id != 800)
+
 
 #Make a CSI Total var for each participant that is a sum of the CSI vars
 CSI_total <- result %>% select(subject_id, csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24, redcap_event_name) %>% group_by(subject_id, redcap_event_name) %>%  summarize(CSSI_sum = sum(csi_child_q1, csi_child_q2, csi_child_q3, csi_child_q4, csi_child_q5, csi_child_q6, csi_child_q7, csi_child_q8, csi_child_q9, csi_child_q10, csi_child_q11, csi_child_q12, csi_child_q13, csi_child_q14, csi_child_q15, csi_child_q16, csi_child_q17, csi_child_q18, csi_child_q19, csi_child_q20, csi_child_q21, csi_child_q22, csi_child_q23, csi_child_q24))
@@ -34,6 +41,7 @@ CSI_total$redcap_event_name[CSI_total$redcap_event_name == "baseline_visit_chi_a
 CSI_total$redcap_event_name[CSI_total$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 CSI_total$redcap_event_name[CSI_total$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 
+
 #Clinical Correlates -- These vars include Pain Intereference Score (REDCap), Weekly Pain (REDCap), Sensitivity Score on Body Map questionnaire
 #These measures are key variable indicatiors of pain besides the Body Map questionnaire
 ClinicalCorrelates_vars <- result %>% select(subject_id, redcap_event_name, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8) %>% group_by(subject_id, redcap_event_name) %>% summarise(PainInterfSum = sum(pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8))
@@ -41,16 +49,19 @@ ClinicalCorrelates_vars$redcap_event_name[ClinicalCorrelates_vars$redcap_event_n
 ClinicalCorrelates_vars$redcap_event_name[ClinicalCorrelates_vars$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 ClinicalCorrelates_vars$redcap_event_name[ClinicalCorrelates_vars$redcap_event_name == "visit2_child_arm_1"] <- "PV2" 
 
+
 #Merge Clinical Correlate vars with CSI total
 #filter out any test subjects (1) and any other weird subject id numbers aka any that are not even numbers from 2-600
 CC_rc <- merge(x = ClinicalCorrelates_vars, y = CSI_total, by = c("subject_id", "redcap_event_name")) %>% filter( subject_id != 800) %>% filter(subject_id != 81) %>% filter(subject_id != 1) 
 #Check for duplicates
 duplicated_values <- CC_rc[duplicated(CC_rc$subject_id), "Subject_id"]
 
+
 #Merge CC_rc with Promis Affect and Stress Totals
 NewTotals <- merge(x = promis_affect_stress, y = CC_rc, by = c("subject_id", "redcap_event_name")) %>% filter(subject_id != 1) %>%filter( subject_id != 800) %>% filter(subject_id != 81)
 
------------- PICK UP HERE
+
+#Merge with rest of important REDCap vars
 Combined_data <- result %>% select(record_id, subject_id, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, tanner_q3, anxietyscore, depressionscore, redcap_event_name, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8) %>% filter(record_id != "1") %>%filter( subject_id != 800) %>% filter (subject_id != 81)
 
 Combined_data$redcap_event_name[Combined_data$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
@@ -62,6 +73,18 @@ Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit_1_pare
 Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
 Combined_data$redcap_event_name[Combined_data$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
 
-
 Merged_data <- merge(x = Combined_data, y = NewTotals, by = c("subject_id", "redcap_event_name"))
 Merged_data %>% select(record_id, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, tanner_q3, anxietyscore, depressionscore, redcap_event_name, Promis_Affect_Total, Promis_Stress_Total, CSSI_sum, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum, subject_id, pedpro_pain_q1, rome_a_q1, rome_b_q1, pedpro_interference_q1, pedpro_interference_q2, pedpro_interference_q3, pedpro_interference_q4, pedpro_interference_q5, pedpro_interference_q6, pedpro_interference_q7, pedpro_interference_q8)
+
+
+#Merge with vars from parent questionnaires (under differet sub id but same record id as child) -- these vars are the parent's ratings of their child's menstrual pain and the child's age
+Parent_data <- result %>% select(record_id, painrating_parent_q1, demo_child_age, redcap_event_name) %>% filter(record_id != "1")
+
+Parent_data$redcap_event_name[Parent_data$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
+Parent_data$redcap_event_name[Parent_data$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+Parent_data$redcap_event_name[Parent_data$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+Parent_data %>% filter(redcap_event_name == "BL" | redcap_event_name == "PV1" | redcap_event_name == "PV2")
+
+Final_merge <- merge(x = Parent_data, y = Merged_data, by = c("record_id", "redcap_event_name")) %>% filter(redcap_event_name != "phone_screen_arm_1" | redcap_event_name != "annual_year_1_arm_1") %>% filter(subject_id != 81)
+
