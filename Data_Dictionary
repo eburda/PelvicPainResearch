@@ -1,0 +1,21 @@
+#This file contains variables used in this repository and their definitions
+
+REDCap Variables
+#TODO: include more detailed defs of vars about longer questionnaires
+- redcap_event_name = visit name, differs for parents vs children
+- demo_child_age = child's age (in parent questionnaires)
+- tanner_q3 = child's self-rating of menstrual pain 
+- painrating_parent_q1 = parent's rating of child's menstrual pain (in parent questionnaires)
+- promis_eos_[] = 8 vars that are part of the Promis Stress questionnaire (each has a different ending of numbers and letters)
+- promis_swb_[] = 8 vars that are part of the Promis Affect questionnaire (each has a different ending of numbers and letters)
+- csi_child_q1...q24 = 24 vars that are part of the CSI questionnaire (each ends with a number from 1-24)
+- pedpro_interference_q1...8 = 8 vars that are part of the Pain Interference questionnaire (each ends with a number from 1-8)
+- pt4a_cpmwater1 =
+- pt4a1_cpmwater2 = 
+- bt7b_yellowpain = pain rating at "yellow zone" aka First Urge of the bladder test 
+- bt7c_redpain = pain rating at "red zone" aka Maximum Tolerance of the bladder test 
+- anxietyscore = score given based on questionnaires about anxiety
+- depressionscore = score given based on questionnaires about depression
+- pedpro_pain_q1 = 
+- rome_a_q1 = (categorical var)
+- rome_b_q1 = (categorical var)
