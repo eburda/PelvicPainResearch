@@ -1,4 +1,5 @@
 # **IMPORTANT: SEE BODYMAP ANALYSES FOR DATA PREP**
+#TODO: add documentation
 
 #Create new dataframe from one used for bodymap analyses, adding in new var DYS_category that categorizes menstrual pain into 4 levels
 qst_rc_bm_merge_DYS <- qst_rc_bm_merge %>% select(tanner_q3, subject_id, redcap_event_name) %>% 
@@ -28,4 +29,84 @@ df_BL <- qst_rc_bm_merge %>% filter(redcap_event_name == "BL")
 qst_rc_bm_merge_DYS_wide$PV1_DYS <- factor(qst_rc_bm_merge_DYS_wide$PV1_DYS, levels = c("None (0)", "Mild (1-30)", "Moderate (31-70)", "Severe (71-100)"))
 
 DYS_categories_df_merged <- qst_rc_bm_merge_DYS_wide %>% left_join(df_BL, by = c("subject_id")) #, all.x = TRUE)
+
+                                                    
+df_for_tableone_DYS <- DYS_categories_df_merged %>%
+  select(demo_child_age, bt7b_yellowpain, bt7c_redpain, anxietyscore, depressionscore, CSSI_sum, Promis_Affect_Total, Promis_Stress_Total, C1_Vis_Gracely_mean, C1_Vis_Gracely_slope, C1_Aud_Gracely_mean, C1_Aud_Gracely_slope, C1_PPTavg, C1_CPMchange, C1_CPMppt, pt4a_cpmwater1, pt4a1_cpmwater2, SensitivityTotal, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum, PV1_DYS) 
+#removed Category and BodyTotal BL
+
+
+
+variabless <- c("demo_child_age", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "CSSI_sum", "Promis_Affect_Total", "Promis_Stress_Total", "C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt",  "pt4a_cpmwater1", "pt4a1_cpmwater2", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum", "PV1_DYS")
+# Create the table using CreateTableOne
+categorical_vars <- c("rome_a_q1", "rome_b_q1")
+
+table_one_DYS <- CreateTableOne(
+  vars = variabless, 
+  factorVars = categorical_vars,
+  strata = "PV1_DYS",
+  data = df_for_tableone_DYS,     # -- should be baseline data but with groupings from PV1 time point
+)
+
+# Display the table
+print(table_one_DYS, nonnormal = variabless, showAllLevels = TRUE, quote = FALSE, smd = TRUE, noSpaces = TRUE)
+
+
+##Stratified by Dysmennorhea (instead of Body Map) -- Cross-Sectional Model
+
+qst_rc_bm_merge_DYS_cs <- qst_rc_bm_merge %>% select(tanner_q3, subject_id, redcap_event_name) %>% 
+  mutate(DYS_category = case_when(
+    tanner_q3 == 0 ~ "None (0)",
+    between(tanner_q3, 1, 30) ~ "Mild (1-30)",
+    between(tanner_q3, 31, 70) ~ "Moderate (31-70)",
+    between(tanner_q3, 71, 100) ~ "Severe (71-100)",
+    TRUE ~ NA_character_ # Handles any other cases (if any)
+  ))
+
+#qst_rc_bm_merge_DYS <- qst_rc_bm_merge_DYS %>%
+#  mutate(redcap_event_name2 = redcap_event_name)
+
+#STRATA CATEGORY -- PV1 (CHANGE TO PV2 WHEN NEEDED)
+qst_rc_bm_merge_DYS_wide <- qst_rc_bm_merge_DYS_cs %>% filter(redcap_event_name == "PV1") %>% 
+  pivot_wider(names_from = redcap_event_name, values_from = DYS_category)
+
+qst_rc_bm_merge_DYS_wide <- qst_rc_bm_merge_DYS_wide %>%
+  rename(PV1_DYS = PV1)
+
+
+df_PV1 <- qst_rc_bm_merge %>% filter(redcap_event_name == "PV1")
+
+#turning PV1_DYS values into factors
+qst_rc_bm_merge_DYS_wide$PV1_DYS <- factor(qst_rc_bm_merge_DYS_wide$PV1_DYS, levels = c("None (0)", "Mild (1-30)", "Moderate (31-70)", "Severe (71-100)"))
+
+qst_rc_bm_merge_DYS_wide %>% select (subject_id, PV1_DYS)
+
+DYS_categories_df_merged_cs <- merge(
+     x = df_PV1,
+     y = qst_rc_bm_merge_DYS_wide,
+     by = "subject_id",
+     all.x = TRUE
+ )
+
+                                                      
+                                                    
+df_for_tableone_DYS_cs <- DYS_categories_df_merged_cs %>%
+  select(demo_child_age, bt7b_yellowpain, bt7c_redpain, anxietyscore, depressionscore, CSSI_sum, Promis_Affect_Total, Promis_Stress_Total, C1_Vis_Gracely_mean, C1_Vis_Gracely_slope, C1_Aud_Gracely_mean, C1_Aud_Gracely_slope, C1_PPTavg, C1_CPMchange, C1_CPMppt, pt4a_cpmwater1, pt4a1_cpmwater2, SensitivityTotal, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum, PV1_DYS) 
+#removed Category and BodyTotal BL
+
+
+
+variabless <- c("demo_child_age", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "CSSI_sum", "Promis_Affect_Total", "Promis_Stress_Total", "C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt",  "pt4a_cpmwater1", "pt4a1_cpmwater2", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum", "PV1_DYS")
+# Create the table using CreateTableOne
+categorical_vars <- c("rome_a_q1", "rome_b_q1")
+
+
+
+
+table_one_DYS_cross_sectional_PV1 <- CreateTableOne(vars = variabless, factorVars = categorical_vars, strata = "PV1_DYS", data = df_for_tableone_DYS_cs)
+
+print(table_one_DYS_cross_sectional_PV1, nonnormal = variabless)
+
+
+
 
