@@ -137,23 +137,19 @@ bm_transform$redcap_event_name[bm_transform$redcap_event_name == "BodyTotal BL"]
 bm_transform$redcap_event_name[bm_transform$redcap_event_name == "BodyTotal PV1"] <- "PV1"
 bm_transform$redcap_event_name[bm_transform$redcap_event_name == "BodyTotal PV2"] <- "PV2"
 
-
-
--------------------PICK UP HERE-----------------------------
+#Merge the transformed Sensitivity and BodyMap datasets
 bm_sensitivity_merge <- merge(x = sensitivity_transform, y = bm_transform, by = c("subject_id", "redcap_event_name"))
-new_new_merge <- merge(x = bm_sensitivity_merge, y = bodyMap_total_over_time, by = c( "subject_id"))
+#Merge the above dataset with the BodyTotal numbers
+bm_sens_bodytotal_merge <- merge(x = bm_sensitivity_merge, y = bodyMap_total_over_time, by = c( "subject_id"))
 
-
-newer <- new_new_merge %>% pivot_longer (cols = -c(subject_id, redcap_event_name, Body_Total, SensitivityTotal, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, `SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`), names_to = "event", values_to ="Widespread Pain (0/1)" ) %>% select(subject_id, redcap_event_name, Body_Total, SensitivityTotal) %>% distinct () %>% mutate("Widespread Pain (0/1) (No/Yes)" = Body_Total < 3)
-
-newer$`Widespread Pain (0/1) (No/Yes)` <- ifelse(
+#Transform the data again
+bm_sens_bodytotal_transform <- bm_sens_bodytotal_merge %>% pivot_longer (cols = -c(subject_id, redcap_event_name, Body_Total, SensitivityTotal, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, `SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`), names_to = "event", values_to ="Widespread Pain (0/1)" ) %>% select(subject_id, redcap_event_name, Body_Total, SensitivityTotal) %>% distinct () %>% mutate("Widespread Pain (0/1) (No/Yes)" = Body_Total < 3)
+--------------- ** PICK UP HERE ** -------------
+bm_sens_bodytotal_transform$`Widespread Pain (0/1) (No/Yes)` <- ifelse(
     
-        is.na(newer$Body_Total), NA,
-        ifelse (newer$Body_Total %in% c(0, 1, 2), 0, 1)
+        is.na(bm_sens_bodytotal_transform$Body_Total), NA,
+        ifelse (bm_sens_bodytotal_transform$Body_Total %in% c(0, 1, 2), 0, 1)
 )
-
-
-
 
 
 ## Merge with rest of data
