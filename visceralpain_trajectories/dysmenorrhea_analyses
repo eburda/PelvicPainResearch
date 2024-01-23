@@ -1,1 +1,31 @@
+# **IMPORTANT: SEE BODYMAP ANALYSES FOR DATA PREP**
+
+#Create new dataframe from one used for bodymap analyses, adding in new var DYS_category that categorizes menstrual pain into 4 levels
+qst_rc_bm_merge_DYS <- qst_rc_bm_merge %>% select(tanner_q3, subject_id, redcap_event_name) %>% 
+  mutate(DYS_category = case_when(
+    tanner_q3 == 0 ~ "None (0)",
+    between(tanner_q3, 1, 30) ~ "Mild (1-30)",
+    between(tanner_q3, 31, 70) ~ "Moderate (31-70)",
+    between(tanner_q3, 71, 100) ~ "Severe (71-100)",
+    TRUE ~ NA_character_ # Handles any other cases (if any)
+  ))
+
+qst_rc_bm_merge_DYS <- qst_rc_bm_merge_DYS %>%
+  mutate(redcap_event_name2 = redcap_event_name)
+
+#STRATA CATEGORY -- PV1 (CHANGE TO PV2 WHEN NEEDED)
+qst_rc_bm_merge_DYS_wide <- qst_rc_bm_merge_DYS %>% filter(redcap_event_name == "PV1") %>% 
+  pivot_wider(names_from = redcap_event_name, values_from = DYS_category)
+
+qst_rc_bm_merge_DYS_wide <- qst_rc_bm_merge_DYS_wide %>%
+  rename(PV1_DYS = PV1) 
+qst_rc_bm_merge_DYS_wide %>% rename(redcap_event_name = redcap_event_name2)
+
+#DATA IN TABLE (BL FOR PREDICTIVE MODEL)
+df_BL <- qst_rc_bm_merge %>% filter(redcap_event_name == "BL")
+
+#turning PV1_DYS values into factors
+qst_rc_bm_merge_DYS_wide$PV1_DYS <- factor(qst_rc_bm_merge_DYS_wide$PV1_DYS, levels = c("None (0)", "Mild (1-30)", "Moderate (31-70)", "Severe (71-100)"))
+
+DYS_categories_df_merged <- qst_rc_bm_merge_DYS_wide %>% left_join(df_BL, by = c("subject_id")) #, all.x = TRUE)
 
