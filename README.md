@@ -9,14 +9,17 @@ Project Directory:
 
 EMPATHY_covid_data
 - Correlational matrices of Covid EMPATHY data
+  
 EMPATHY_diaries
 
-API_calls
-- API calls to REDCAP
+EMPATHY_period_analyses
+
+EMPATHY_visceral_pain
   
 Process_improvement_scripts
 - PPT text files to Microsoft Excel csv
 - Selection of eligible participants
+- API calls to the REDCap database
 
 Data_Dictionary
 
