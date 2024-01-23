@@ -171,3 +171,310 @@ colnames(select_qst)[which(names(select_qst) == "C_ID")] <- "subject_id"
 
 qst_rc_bm_merge <- FINAL_merge %>% left_join(select_qst, by = c("subject_id", "redcap_event_name"))
 BL <- qst_rc_bm_merge %>% filter(redcap_event_name == "BL") 
+
+
+# Prepare your data in a format suitable for tableone
+desired_levels <- c("BL", "PV1", "PV2")
+df_for_tableone <- qst_rc_bm_merge %>% filter(redcap_event_name %in% desired_levels) %>%
+  select(redcap_event_name, demo_child_age, tanner_q3, pt4a_cpmwater1, pt4a1_cpmwater2, bt7b_yellowpain, bt7c_redpain, anxietyscore, depressionscore, painrating_parent_q1, CSSI_sum, Promis_Affect_Total, Promis_Stress_Total, SensitivityTotal, Body_Total, `Widespread Pain (0/1) (No/Yes)`, C1_Vis_Gracely_mean, C1_Vis_Gracely_slope, C1_Aud_Gracely_mean, C1_Aud_Gracely_slope, C1_PPTavg, C1_CPMchange, C1_CPMppt, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum) 
+
+variables <- c("demo_child_age", "tanner_q3", "pt4a_cpmwater1", "pt4a1_cpmwater2", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "painrating_parent_q1", "CSSI_sum", "SensitivityTotal",  "Body_Total", "Promis_Affect_Total", "Promis_Stress_Total", "Widespread Pain (0/1) (No/Yes)", "C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+bin_vars <- c("Widespread Pain (0/1) (No/Yes)", "rome_a_q1", "rome_b_q1")
+# Create the table using CreateTableOne
+table_one <- CreateTableOne(
+  vars = variables, 
+  factorVars = bin_vars,
+  strata = "redcap_event_name",
+  data = df_for_tableone,
+)
+
+# Display the table
+print(table_one, nonnormal = variables, showAllLevels = TRUE, quote = FALSE, smd = TRUE, noSpaces = TRUE)
+```
+
+## Baseline Table above split into those with Body Map scores of 3 and higher and less than 3
+```{r}
+FINAL_merge_split_WP <- qst_rc_bm_merge %>% filter(redcap_event_name == "BL")
+
+variables_BL <- c("demo_child_age", "bt7b_yellowpain", "bt7c_redpain", "pt4a_cpmwater1", "pt4a1_cpmwater2", "anxietyscore", "depressionscore", "CSSI_sum", "Body_Total", "Promis_Affect_Total", "Promis_Stress_Total", "C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+
+desired_levels_BL <- c(0, 1)
+df_for_BL <- FINAL_merge_split_WP 
+
+table_one_BL <- CreateTableOne(vars = variables_BL, strata = "Widespread Pain (0/1) (No/Yes)", data = df_for_BL)
+
+print(table_one_BL, nonnormal = variables_BL)
+
+
+```
+```{r}
+FINAL_merge_split_PV1 <- qst_rc_bm_merge %>% filter(redcap_event_name == "PV1")
+
+variables_PV1 <- c("demo_child_age", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "CSSI_sum", "Body_Total", "Promis_Affect_Total", "Promis_Stress_Total", "tanner_q3", "painrating_parent_q1", "C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+
+df_for_PV1 <- FINAL_merge_split_PV1
+
+table_one_PV1 <- CreateTableOne(vars = variables_PV1, strata = "Widespread Pain (0/1) (No/Yes)", data = df_for_PV1)
+
+print(table_one_PV1, nonnormal = variables_PV1)
+```
+
+```{r}
+FINAL_merge_split_PV2 <- qst_rc_bm_merge %>% filter(redcap_event_name == "PV2")
+
+variables_PV2 <- c("demo_child_age", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "CSSI_sum", "Body_Total", "Promis_Affect_Total", "Promis_Stress_Total", "tanner_q3", "painrating_parent_q1","C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+
+df_for_PV2 <- FINAL_merge_split_PV2
+
+table_one_PV2 <- CreateTableOne(vars = variables_PV2, strata = "Widespread Pain (0/1) (No/Yes)", data = df_for_PV2)
+
+print(table_one_PV2, nonnormal = variables_PV2)
+```
+
+## Group together in 3 categories of BM pain
+```{r}
+transitions <- bodyMap_total_over_time %>%
+  mutate(
+    'Category BL' = ifelse(`BodyTotal BL` < 3, "BL Low", "BL High"),
+    'Category PV1' = ifelse(`BodyTotal PV1` < 3, "PV1 Low", "PV1 High"),
+    'Category PV2' = ifelse(`BodyTotal PV2` < 3, "PV2 Low", "PV2 High")
+  )
+
+############
+transitions <- transitions %>%
+  mutate(TransitionCategory = "Other")
+
+
+transitions <- transitions %>%
+  mutate(
+    TransitionCategory = case_when(
+      `Category BL` == "BL Low" & `Category PV1` == "PV1 High" & `Category PV2` == "PV2 High" ~ "NOT WSP to WSP to WSP", 
+      `Category BL` == "BL Low" & `Category PV1` == "PV1 Low" & `Category PV2` == "PV2 High" ~ "NOT WSP to NOT WSP to WSP",
+      `Category BL` == "BL Low" & `Category PV1` == "PV1 High" & `Category PV2` == "PV2 Low" ~ "NOT WSP to WSP to NOT WSP",
+      `Category BL` == "BL Low" & `Category PV1` == "PV1 High" ~ "NOT WSP to WSP",
+      
+      `Category BL` == "BL Low" & `Category PV1` == "PV1 Low" & `Category PV2` == "PV2 Low" ~ "NOT WSP to NOT WSP to NOT WSP",
+      `Category BL` == "BL Low" & `Category PV1` == "PV1 Low" ~ "NOT WSP to NOT WSP",
+
+      `Category BL` == "BL High" & `Category PV1` == "PV1 High" & `Category PV2` == "PV2 High" ~ "WSP to WSP to WSP",
+      `Category BL` == "BL High" & `Category PV1` == "PV1 High" ~ "WSP to WSP",
+      
+      `Category BL` == "BL High" & `Category PV1` == "PV1 Low" & `Category PV2` == "PV2 Low" ~ "WSP to NOT WSP to NOT WSP",
+      `Category BL` == "BL High" & `Category PV1` == "PV1 Low" & `Category PV2` == "PV2 High" ~ "WSP to NOT WSP to WSP",
+      `Category BL` == "BL High" & `Category PV1` == "PV1 High" & `Category PV2` == "PV2 Low" ~ "WSP to WSP to NOT WSP",
+      `Category BL` == "BL High" & `Category PV1` == "PV1 Low" ~ "WSP to NOT WSP",
+      
+      TRUE ~ "Only BL"
+    )
+  )
+
+
+############
+
+
+
+na.omit(transitions)
+
+transition_counts <- table(transitions$TransitionCategory)
+
+print(transition_counts)
+
+
+
+
+transitions_3cat <- transitions %>%
+  mutate(PredictiveCategory = "Other")
+
+transitions_3cat <- transitions %>% mutate(Category = case_when (
+  TransitionCategory == "NOT WSP to WSP to WSP" ~ "BM >2 by PV1 or PV2", 
+  TransitionCategory == "NOT WSP to NOT WSP to WSP" ~ "BM >2 by PV1 or PV2",
+  TransitionCategory == "NOT WSP to WSP to NOT WSP" ~ "BM >2 by PV1 or PV2", 
+  TransitionCategory == "NOT WSP to WSP" ~ "BM >2 by PV1 or PV2", 
+  
+  TransitionCategory == "WSP to WSP to WSP" ~ "BM >2",
+  TransitionCategory == "WSP to WSP" ~ "BM >2",
+  TransitionCategory == "WSP to NOT WSP to WSP" ~ "BM >2",
+  TransitionCategory == "WSP to NOT WSP to NOT WSP" ~ "BM >2",
+  TransitionCategory == "WSP to NOT WSP" ~ "BM >2",
+
+  TransitionCategory == "NOT WSP to NOT WSP to NOT WSP" ~ "Never BM >2",
+  TransitionCategory == "NOT WSP to NOT WSP" ~ "Never BM >2",
+  
+  TRUE ~ "NA"
+))
+
+transitions_3cat_counts <- table(transitions_3cat$Category)
+print(transitions_3cat_counts)
+```
+
+
+```{r}
+BM_3cat_merge <- transitions_3cat %>% select(subject_id, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, Category, TransitionCategory) 
+BM_3cat_merged <- merge(x = BM_3cat_merge, y = qst_rc_bm_merge, by = c("subject_id")) %>% distinct() 
+
+## creates csv file that lists out sub ids and BM WSP Category
+sub_ids_BM_3cat <- BM_3cat_merged %>% select(subject_id, Category, TransitionCategory) %>% pivot_wider(names_from = Category, values_from = subject_id) 
+
+sub_ids_BM_3cat <- BM_3cat_merged %>% select(subject_id, Category) %>% distinct() %>% pivot_wider(names_from = Category, values_from = subject_id) 
+
+#sub <- sub_ids_BM_3cat %>% unnest(cols = "")
+#print(sub, n = 60)
+
+
+## BL
+BM_3cat_merged_BL <- BM_3cat_merged %>% filter (redcap_event_name == "BL")
+
+desired_levels_BM_cat <- c("BM >2 by PV1 or PV2", "Never BM >2", "BM >2")
+df_for_tableone_BM <- BM_3cat_merged_BL %>% filter(Category %in% desired_levels_BM_cat) %>%
+  select(demo_child_age, bt7b_yellowpain, bt7c_redpain, anxietyscore, depressionscore, CSSI_sum, Promis_Affect_Total, Promis_Stress_Total, Category, `BodyTotal BL`, C1_Vis_Gracely_mean, C1_Vis_Gracely_slope, C1_Aud_Gracely_mean, C1_Aud_Gracely_slope, C1_PPTavg, C1_CPMchange, C1_CPMppt, pt4a_cpmwater1, pt4a1_cpmwater2, SensitivityTotal, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum) 
+
+variabless <- c("demo_child_age", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "CSSI_sum", "Promis_Affect_Total", "Promis_Stress_Total", "BodyTotal BL", "C1_Vis_Gracely_mean", "C1_Vis_Gracely_slope", "C1_Aud_Gracely_mean", "C1_Aud_Gracely_slope", "C1_PPTavg", "C1_CPMchange", "C1_CPMppt", "pt4a_cpmwater1", "pt4a1_cpmwater2", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+# Create the table using CreateTableOne
+categorical_vars <- c("rome_a_q1", "rome_b_q1")
+
+table_one_BM <- CreateTableOne(
+  vars = variabless, 
+  factorVars = categorical_vars,
+  strata = "Category",
+  data = df_for_tableone_BM,
+)
+
+# Display the table
+print(table_one_BM, nonnormal = variabless, showAllLevels = TRUE, quote = FALSE, smd = TRUE, noSpaces = TRUE)
+
+
+
+
+
+
+
+table_one_BM <- CreateTableOne(
+  vars = variabless, 
+  strata = "Category",
+  data = df_for_tableone_BM,
+  testNonNormal = "kruskal"
+)
+
+# Display the table
+print(table_one_BM, nonnormal = variabless, showAllLevels = TRUE, quote = FALSE, smd = TRUE, testNonNormal = kruskal.test, noSpaces = TRUE)
+
+
+kruskal_results <- lapply(variabless, function(var) {
+  kruskal.test(get(var) ~ Category, data = df_for_tableone_BM)
+})
+
+#Perform Dunn test
+install.packages("dunn.test")
+library(dunn.test)
+
+# Perform Dunn's test for pairwise comparisons
+dunn_results <- lapply(variabless, function(var) {
+  dunn.test(df_for_tableone_BM[[var]], g = df_for_tableone_BM$Category, kw = TRUE, label = TRUE, wrap = FALSE, table = TRUE) 
+})
+
+
+# Extract relevant information from Dunn's test results
+dunn_p_values <- lapply(dunn_results, function(result) {
+  result$p.adjusted
+})
+
+# Add Dunn's test p-values to the table
+for (i in seq_along(variabless)) {
+  colname <- paste0("Dunn's Test p-value (", variabless[i], ")")
+  table_one_BM <- cbind(table_one_BM, colname = dunn_p_values[[i]])
+}
+
+# Print the updated table
+print(table_one_BM, noSpaces = TRUE)
+
+print(table_one_BM$ContTable)
+
+# Print metadata information
+print(table_one_BM$MetaData)
+
+
+
+##cant run these with QST (only baseline)
+
+BM_3cat_merge <- transitions_3cat %>% select(subject_id, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, Category, TransitionCategory) 
+BM_3cat_merged <- merge(x = BM_3cat_merge, y = Final_merge, by = c("subject_id")) %>% distinct() 
+
+## BL
+BM_3cat_merged_PV1 <- BM_3cat_merged %>% filter (redcap_event_name == "PV1")
+
+desired_levels_BM_cat <- c("BM >2 by PV1 or PV2", "Never BM >2", "BM >2")
+df_for_tableone_PV1 <- BM_3cat_merged_PV1 %>% filter(Category %in% desired_levels_BM_cat) %>%
+  select(demo_child_age, tanner_q3, bt7b_yellowpain, bt7c_redpain, anxietyscore, depressionscore, painrating_parent_q1, CSSI_sum, Promis_Affect_Total, Promis_Stress_Total, Category, `BodyTotal PV1`, SensitivityTotal, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum) 
+
+variabless <- c("demo_child_age", "tanner_q3", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "painrating_parent_q1", "CSSI_sum", "Promis_Affect_Total", "Promis_Stress_Total", "BodyTotal PV1", "SensitivityTotal","pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+# Create the table using CreateTableOne
+table_one_PV1 <- CreateTableOne(
+  vars = variabless, 
+  strata = "Category",
+  data = df_for_tableone_PV1,
+)
+
+# Display the table
+print(table_one_PV1, nonnormal = variabless, showAllLevels = TRUE, quote = FALSE, smd = TRUE, noSpaces = TRUE)
+
+
+
+BM_3cat_merge <- transitions_3cat %>% select(subject_id, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, Category, TransitionCategory) 
+BM_3cat_merged <- merge(x = BM_3cat_merge, y = Final_merge, by = c("subject_id")) %>% distinct() 
+
+## BL
+BM_3cat_merged_PV2 <- BM_3cat_merged %>% filter (redcap_event_name == "PV2")
+
+desired_levels_BM_cat <- c("BM >2 by PV1 or PV2", "Never BM >2", "BM >2")
+df_for_tableone_PV2 <- BM_3cat_merged_PV2 %>% filter(Category %in% desired_levels_BM_cat) %>%
+  select(demo_child_age, tanner_q3, bt7b_yellowpain, bt7c_redpain, anxietyscore, depressionscore, painrating_parent_q1, CSSI_sum, Promis_Affect_Total, Promis_Stress_Total, Category, `BodyTotal PV2`, SensitivityTotal, pedpro_pain_q1, rome_a_q1, rome_b_q1, PainInterfSum) 
+
+variabless <- c("demo_child_age", "tanner_q3", "bt7b_yellowpain", "bt7c_redpain", "anxietyscore", "depressionscore", "painrating_parent_q1", "CSSI_sum", "Promis_Affect_Total", "Promis_Stress_Total", "BodyTotal PV2", "SensitivityTotal", "pedpro_pain_q1", "rome_a_q1", "rome_b_q1", "PainInterfSum")
+
+# Create the table using CreateTableOne
+table_one_PV2 <- CreateTableOne(
+  vars = variabless, 
+  strata = "Category",
+  data = df_for_tableone_PV2,
+  testNonNormal = "kruskal"
+)
+
+# Display the table
+print(table_one_PV2, nonnormal = variabless, showAllLevels = TRUE, quote = FALSE, smd = TRUE, testNonNormal = kruskal.test, noSpaces = TRUE)
+
+
+kruskal_results <- lapply(variabless, function(var) {
+  kruskal.test(get(var) ~ Category, data = df_for_tableone_PV2)
+})
+
+#Perform Dunn test
+install.packages("dunn.test")
+library(dunn.test)
+
+# Perform Dunn's test for pairwise comparisons
+dunn_results <- lapply(variabless, function(var) {
+  dunn.test(df_for_tableone_PV2[[var]], g = df_for_tableone_PV2$Category, kw = TRUE, label = TRUE, wrap = FALSE, table = TRUE)
+})
+
+
+# Extract relevant information from Dunn's test results
+dunn_p_values <- lapply(dunn_results, function(result) {
+  result$p.adjusted
+})
+
+# Add Dunn's test p-values to the table
+for (i in seq_along(variabless)) {
+  colname <- paste0("Dunn's Test p-value (", variabless[i], ")")
+  table_one_PV2 <- cbind(table_one_PV2, colname = dunn_p_values[[i]])
+}
+
+# Print the updated table
+print(table_one_PV2, noSpaces = TRUE)
+
+print(table_one_PV2$ContTable)
+
+# Print metadata information
+print(table_one_PV2$MetaData)
+
+
+
