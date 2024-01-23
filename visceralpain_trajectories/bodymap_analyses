@@ -124,24 +124,24 @@ bodyMap_total_over_time <- baselineBodyMapTotal %>%
 
 
 #Transform data for SenstitivityTotal of each visit into one col with at most 3 rows of values for each participant
-combo <- bodyMap_total_over_time %>%  select(`SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`, subject_id) %>% pivot_longer(cols = c("SensitivityTotal BL", "SensitivityTotal PV1", "SensitivityTotal PV2"), names_to =  "redcap_event_name", values_to =  "SensitivityTotal")
+sensitivity_transform <- bodyMap_total_over_time %>%  select(`SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`, subject_id) %>% pivot_longer(cols = c("SensitivityTotal BL", "SensitivityTotal PV1", "SensitivityTotal PV2"), names_to =  "redcap_event_name", values_to =  "SensitivityTotal")
 #Rename vars to remain consistent with other use of redcap_event_name
-combo$redcap_event_name[combo$redcap_event_name == "SensitivityTotal BL"] <- "BL"
-combo$redcap_event_name[combo$redcap_event_name == "SensitivityTotal PV1"] <- "PV1"
-combo$redcap_event_name[combo$redcap_event_name == "SensitivityTotal PV2"] <- "PV2"
+sensitivity_transform$redcap_event_name[sensitivity_transform$redcap_event_name == "SensitivityTotal BL"] <- "BL"
+sensitivity_transform$redcap_event_name[sensitivity_transform$redcap_event_name == "SensitivityTotal PV1"] <- "PV1"
+sensitivity_transform$redcap_event_name[sensitivity_transform$redcap_event_name == "SensitivityTotal PV2"] <- "PV2"
 
 #Transform data for BodyTotal of each visit into one col with at most 3 rows of values for each participant
-new <- bodyMap_total_over_time %>% select(subject_id, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`) %>% pivot_longer(cols = c(`BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`), names_to = "redcap_event_name", values_to = "Body_Total")
+bm_transform <- bodyMap_total_over_time %>% select(subject_id, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`) %>% pivot_longer(cols = c(`BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`), names_to = "redcap_event_name", values_to = "Body_Total")
 #Rename vars to remain consistent with other use of redcap_event_name
-new$redcap_event_name[new$redcap_event_name == "BodyTotal BL"] <- "BL"
-new$redcap_event_name[new$redcap_event_name == "BodyTotal PV1"] <- "PV1"
-new$redcap_event_name[new$redcap_event_name == "BodyTotal PV2"] <- "PV2"
+bm_transform$redcap_event_name[bm_transform$redcap_event_name == "BodyTotal BL"] <- "BL"
+bm_transform$redcap_event_name[bm_transform$redcap_event_name == "BodyTotal PV1"] <- "PV1"
+bm_transform$redcap_event_name[bm_transform$redcap_event_name == "BodyTotal PV2"] <- "PV2"
 
 
 
 -------------------PICK UP HERE-----------------------------
-new_merge <- merge(x = combo, y = new, by = c("subject_id", "redcap_event_name"))
-new_new_merge <- merge(x = new_merge, y = bodyMap_total_over_time, by = c( "subject_id"))
+bm_sensitivity_merge <- merge(x = sensitivity_transform, y = bm_transform, by = c("subject_id", "redcap_event_name"))
+new_new_merge <- merge(x = bm_sensitivity_merge, y = bodyMap_total_over_time, by = c( "subject_id"))
 
 
 newer <- new_new_merge %>% pivot_longer (cols = -c(subject_id, redcap_event_name, Body_Total, SensitivityTotal, `BodyTotal BL`, `BodyTotal PV1`, `BodyTotal PV2`, `SensitivityTotal BL`, `SensitivityTotal PV1`, `SensitivityTotal PV2`), names_to = "event", values_to ="Widespread Pain (0/1)" ) %>% select(subject_id, redcap_event_name, Body_Total, SensitivityTotal) %>% distinct () %>% mutate("Widespread Pain (0/1) (No/Yes)" = Body_Total < 3)
