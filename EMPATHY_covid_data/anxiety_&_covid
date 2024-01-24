@@ -1,0 +1,74 @@
+#This file looks at the anxiety scores from the children's data and the reporting of COVID-19
+
+#Baseline Anxiety & Covid
+#NOTE: dataNEW is the output dataframe from the API call to REDCap
+#Select vars for anxiety dataframe
+dataNEW1 <- dataNEW %>% select(redcap_event_name, anxietyscore, record_id)
+#Renaming the parent and child visit names to be the same
+dataNEW1$redcap_event_name[dataNEW1$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+dataNEW1$redcap_event_name[dataNEW1$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
+dataNEW1$redcap_event_name[dataNEW1$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+dataNEW1$redcap_event_name[dataNEW1$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+dataNEW1$redcap_event_name[dataNEW1$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+dataNEW1$redcap_event_name[dataNEW1$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+#Filtering out only the visit names BL, PV1, and PV2
+target <- c("BL", "PV1", "PV2")
+dataNEW1 <- dataNEW1 %>% filter(redcap_event_name %in% target) 
+noNA1 <- dataNEW1 %>% na.omit(dataNEW1)
+
+#Select vars for covid dataframe
+dataNEW2 <- dataNEW %>%  select(cg_covid_q1, record_id, redcap_event_name) 
+#Renaming the parent and child visit names to be the same
+dataNEW2$redcap_event_name[dataNEW2$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+dataNEW2$redcap_event_name[dataNEW2$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
+dataNEW2$redcap_event_name[dataNEW2$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+dataNEW2$redcap_event_name[dataNEW2$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+dataNEW2$redcap_event_name[dataNEW2$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+dataNEW2$redcap_event_name[dataNEW2$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+#Filtering out only the visit names in target (as above)
+dataNEW2 <- dataNEW2 %>% filter(redcap_event_name %in% target)
+
+#Merge covid dataframe with anxiety dataframe by the visit name and record id
+dataNEW1 %>% left_join(dataNEW2, by = "redcap_event_name", "record_id", relationship = "many-to-many") 
+noNA1 <- dataNEW1 %>% na.omit(dataNEW1)
+noNA2 <- dataNEW2 %>% na.omit(dataNEW2)
+
+#Merge dataframe without NAs
+anxietyCovdataNEW <- merge(x = noNA1, y = noNA2, by = "record_id", all.x = TRUE)
+
+
+
+#Prep for box plots for each visit number
+BLdataNEWAnxiety <- dataNEW1 %>% select(anxietyscore, record_id, redcap_event_name) %>% filter(redcap_event_name == "BL") %>% na.omit(BLdataNEWAnxiety)
+BLdataNEWCovid <- dataNEW2 %>% select(cg_covid_q1, record_id, redcap_event_name) %>% filter(redcap_event_name == "BL") %>% na.omit(BLdataNEWCovid)
+BLAnxietyCovid <- BLdataNEWAnxiety %>% left_join(BLdataNEWCovid, by = "record_id") %>% na.omit(BLAnxietyCovid) %>% select(anxietyscore, cg_covid_q1)
+
+ggplot(data = BLAnxietyCovid, aes(x = anxietyscore, fill = factor(cg_covid_q1))) + geom_boxplot() +  coord_flip() + labs(title = "Anxiety Scores at BL by History of COVID-19 Diagnosis", x ="Anxiety Score", y ="Density", fill = "Previous Diagnosis of COVID-19 (Yes = 1; No = 0)") + theme_classic() + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.position = "top")
+
+PV1dataNEWAnxiety <- dataNEW1 %>% select(anxietyscore, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% na.omit(PV1dataNEWAnxiety)
+PV1dataNEWCovid <- dataNEW2 %>% select(cg_covid_q1, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% na.omit(PV1dataNEWCovid)
+PV1AnxietyCovid <- PV1dataNEWAnxiety %>% left_join(PV1dataNEWCovid, by = "record_id") %>% na.omit(PV1AnxietyCovid) %>% select(anxietyscore, cg_covid_q1)
+
+ggplot(data = PV1AnxietyCovid, aes(x = anxietyscore, fill = factor(cg_covid_q1))) + geom_boxplot() + coord_flip()+ labs(title = "Anxiety Scores at PV1 by History of COVID-19 Diagnosis") + xlab("Anxiety Score") + ylab("Density") + labs(fill = "Previous Diagnosis of COVID-19 (Yes = 1; No = 0)") + theme(plot.title = element_text(hjust = 0.5)) + theme_classic() + theme(legend.position = "top")
+
+PV2dataNEWAnxiety <- dataNEW1 %>% select(anxietyscore, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV2") %>% na.omit(PV2dataNEWAnxiety)
+PV2dataNEWCovid <- dataNEW2 %>% select(cg_covid_q1, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV2") %>% na.omit(PV2dataNEWCovid)
+PV2AnxietyCovid <- PV2dataNEWAnxiety %>% left_join(PV2dataNEWCovid, by = "record_id") %>% na.omit(PV2AnxietyCovid) %>% select(anxietyscore, cg_covid_q1)
+
+ggplot(data = PV2AnxietyCovid, aes(x = anxietyscore, fill = factor(cg_covid_q1))) + geom_boxplot() + coord_flip()+labs(title = "Anxiety Scores at PV2 by History of COVID-19 Diagnosis", x ="Anxiety Score", y = "Density", fill = "History of COVID-19 Diagnosis") + theme_classic() + theme(plot.title = element_text(hjust = 0.5)) + theme (legend.position = "top")
+
+
+#Tables for each visit number
+CreateTableOne(data = BLAnxietyCovid)
+table1Covid <- CreateTableOne(data = BLAnxietyCovid, strata = "cg_covid_q1")
+print(table1Covid, nonnormal = c("anxietyscore"))
+
+CreateTableOne(data = PV1AnxietyCovid)
+table2Covid <- CreateTableOne(data = PV1AnxietyCovid, strata = "cg_covid_q1")
+print(table2Covid, nonnormal = c("anxietyscore"))
+
+CreateTableOne(data = PV2AnxietyCovid)
+table3Covid <- CreateTableOne(data = PV2AnxietyCovid, strata = "cg_covid_q1")
+print(table3Covid, nonnormal = c("anxietyscore"))
