@@ -1,0 +1,10 @@
+CovidImpact <- dataNEW %>% select(redcap_event_name, record_id, cg_covid_q7a, cg_covid_q7b, cg_covid_q7c, cg_covid_q7d, cg_covid_q7e, cg_covid_q7f, cg_covid_q7g) %>% na.omit(dataNEW) %>% mutate(covid_impact = cg_covid_q7a + cg_covid_q7b + cg_covid_q7c + cg_covid_q7d + cg_covid_q7e + cg_covid_q7f + cg_covid_q7g) %>% select(record_id, covid_impact, redcap_event_name)
+
+#BL
+CovidImpactBL <- dataNEW %>% select(redcap_event_name, record_id, cg_covid_q7a, cg_covid_q7b, cg_covid_q7c, cg_covid_q7d, cg_covid_q7e, cg_covid_q7f, cg_covid_q7g) %>% na.omit(dataNEW) %>% mutate(covid_impact = cg_covid_q7a + cg_covid_q7b + cg_covid_q7c + cg_covid_q7d + cg_covid_q7e + cg_covid_q7f + cg_covid_q7g) %>% select(record_id, covid_impact, redcap_event_name) %>% filter(redcap_event_name == "BL") %>% arrange(-covid_impact)
+
+#PV1
+CovidImpactPV1 <- dataNEW %>% select(redcap_event_name, record_id, cg_covid_q7a, cg_covid_q7b, cg_covid_q7c, cg_covid_q7d, cg_covid_q7e, cg_covid_q7f, cg_covid_q7g) %>% na.omit(dataNEW) %>% mutate(covid_impact = cg_covid_q7a + cg_covid_q7b + cg_covid_q7c + cg_covid_q7d + cg_covid_q7e + cg_covid_q7f + cg_covid_q7g) %>% select(record_id, covid_impact, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% arrange(-covid_impact)
+
+#PV2
+CovidImpactPV2 <- dataNEW %>% select(redcap_event_name, record_id, cg_covid_q7a, cg_covid_q7b, cg_covid_q7c, cg_covid_q7d, cg_covid_q7e, cg_covid_q7f, cg_covid_q7g) %>% na.omit(dataNEW) %>% mutate(covid_impact = cg_covid_q7a + cg_covid_q7b + cg_covid_q7c + cg_covid_q7d + cg_covid_q7e + cg_covid_q7f + cg_covid_q7g) %>% select(record_id, covid_impact, redcap_event_name) %>% filter(redcap_event_name == "PV2") %>% arrange(-covid_impact)
