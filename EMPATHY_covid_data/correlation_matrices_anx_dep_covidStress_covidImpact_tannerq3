@@ -1,0 +1,11 @@
+PV1tanner_q3 <- dataNEW %>% select(record_id, tanner_q3, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% select(record_id, tanner_q3)
+
+PV1dataNEW <- PV1dataNEWDepression %>% select(record_id, depressionscore) %>% merge(CovidStressPV1, by = "record_id") %>% merge(CovidImpactPV1, by = "record_id") %>% merge(PV1dataNEWAnxiety, by = "record_id") %>% merge(PV1tanner_q3, by = "record_id") %>% select(depressionscore, covid_stress, covid_impact, anxietyscore, tanner_q3) 
+cor(PV1dataNEW, method = "spearman", use = "complete.obs")
+
+
+
+PV2tanner_q3 <- dataNEW %>% select(record_id, tanner_q3, redcap_event_name) %>% filter(redcap_event_name == "PV2") %>% select(record_id, tanner_q3)
+
+PV2dataNEW <- PV2dataNEWDepression %>% select(record_id, depressionscore) %>% merge(CovidStressPV2, by = "record_id") %>% merge(CovidImpactPV2, by = "record_id") %>% merge(PV2dataNEWAnxiety, by = "record_id") %>% merge(PV2tanner_q3, by = "record_id") %>% select(depressionscore, covid_stress, covid_impact, anxietyscore, tanner_q3) 
+cor(PV2dataNEW, method = "spearman", use = "complete.obs")
