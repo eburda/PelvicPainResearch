@@ -7,32 +7,45 @@ install.packages("ggplot")
 library(tidyverse)
 library(ggplot2)
 
-#call the data - can also be an API call to REDCAP
+#Call the data - can also be an API call to REDCAP
 dataNEW <- read.csv("/Users/embur/Downloads/EH17338EMPATHY_data_2023-06-16_1348.csv")
 
+#Preparing the data from the parent's questionnaire
+#Select visit number, parent's response to covid question, and record id
+#Filter for only visit 1 and visit 2 data
+#NOTE: covid questionnaire is only part of the parent's questionnaire (not the child's) 
 coviddataNEWParent <- dataNEW %>% select(redcap_event_name, cg_covid_q1, record_id) %>%  filter(redcap_event_name == "visit_1_parent_arm_1" | redcap_event_name == "visit_2_parent_arm_1")
+#Rename visit names 
 coviddataNEWParent$redcap_event_name[coviddataNEWParent$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
 coviddataNEWParent$redcap_event_name[coviddataNEWParent$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+#Remove NA values
 coviddataNEWParent <- coviddataNEWParent %>% na.omit(coviddataNEWParent)
 
+#Preparing the data from the child's questionniare
+#Select visit number, child's rating of period pain, and record id
+#Filter for only visit 1 and visit 2
+#NOTE: tanner_q3 is only part of the child's questionnaire
 paindataNEWChild <- dataNEW %>% select(redcap_event_name, tanner_q3, record_id) %>%  filter(redcap_event_name == "visit_1_child_arm_1" | redcap_event_name == "visit2_child_arm_1")
+#Rename visit names
 paindataNEWChild$redcap_event_name[paindataNEWChild$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
 paindataNEWChild$redcap_event_name[paindataNEWChild$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+#Remove NA values
 paindataNEWChild %>% na.omit(paindataNEWChild)
 
+#Set string value for binary covid question answers
 coviddataNEWParent$cg_covid_q1[coviddataNEWParent$cg_covid_q1 == 0] <- "No COVID-19 Diagnosis"
 coviddataNEWParent$cg_covid_q1[coviddataNEWParent$cg_covid_q1 == 1] <- "Yes COVID-19 Diagnosis"
 
 #PV1 Boxplot
 PV1datCov <- coviddataNEWParent %>% select(record_id, redcap_event_name, cg_covid_q1) %>% filter(redcap_event_name == "PV1") 
 PV1datPain <- paindataNEWChild %>% select(tanner_q3, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% na.omit(PV1datPain)
+#Merge the data from the parent (covid) and child (period pain) into one dataframe by the shared record id
 PV1paincovid <- merge(x = PV1datCov, y = PV1datPain, by = "record_id")
 
 ggplot(data = PV1paincovid, aes(x = tanner_q3, fill = factor(cg_covid_q1))) + geom_boxplot() +  coord_flip() 
 + labs(title = "Menstrual Pain Ratings by History of COVID-19 Diagnosis at PV1", x ="Menstrual Pain Self-Rating", fill = "History of COVID-19") 
 + theme_classic() + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.position = "top")
 
-________________________________
 
 #PV2 Boxplot
 #uses similar code as above but variables are changed to PV2 instead of PV1
