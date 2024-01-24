@@ -1,0 +1,21 @@
+#This file plots the parent's rating of their child's menstrual pain against the reporting of COVID-19
+#Below the box plots there is code for a table and desnity plot
+
+#NOTE: dataNEW is the assigned name of the output from the API call to REDCap
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+filteredData <- dataNEW %>% filter(redcap_event_name == "PV1" | redcap_event_name == "PV2") %>% select (redcap_event_name, record_id, cg_covid_q1, painrating_parent_q1) %>% na.omit(filteredData)
+
+filteredData$cg_covid_q1[filteredData$cg_covid_q1 == 0] <- "No COVID-19 Diagnosis"
+filteredData$cg_covid_q1[filteredData$cg_covid_q1 == 1] <- "Yes COVID-19 Diagnosis"
+
+ggplot(data = filteredData, aes(x = painrating_parent_q1, fill = cg_covid_q1)) + geom_boxplot() + coord_flip() + theme_classic() + labs(title = "Parent's Rating of Child's Period Pain by History of COVID-19 Diagnosis", fill = "History of COVID-19 Diagnosis", x = "Parent's Rating of Child's Period Pain") + facet_grid(~redcap_event_name) + theme(plot.title = element_text(hjust = 0.5)) + theme(legend.position = "top")
+
+
+#Density plot of parent's rating of child's menstrual pain by covid reporting (No/Yes) and visit number
+covidPeriod2 <- dataNEW  %>% select(redcap_event_name, painrating_parent_q1, tanner_q3, cg_covid_q1) %>%  filter(redcap_event_name == "PV1" | redcap_event_name == "PV2")
+covidPeriod2$cg_covid_q1[is.na(covidPeriod2$cg_covid_q1)] = 0
+ggplot(data = covidPeriod2, aes(x = painrating_parent_q1, color = redcap_event_name)) + geom_density() + facet_grid(~cg_covid_q1)
+
+CreateTableOne(data = covidPeriod2)
+table1Covid <- CreateTableOne(data = covidPeriod2, strata = "cg_covid_q1")
