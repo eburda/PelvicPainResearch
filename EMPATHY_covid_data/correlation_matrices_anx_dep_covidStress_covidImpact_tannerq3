@@ -9,3 +9,74 @@ PV2tanner_q3 <- dataNEW %>% select(record_id, tanner_q3, redcap_event_name) %>% 
 
 PV2dataNEW <- PV2dataNEWDepression %>% select(record_id, depressionscore) %>% merge(CovidStressPV2, by = "record_id") %>% merge(CovidImpactPV2, by = "record_id") %>% merge(PV2dataNEWAnxiety, by = "record_id") %>% merge(PV2tanner_q3, by = "record_id") %>% select(depressionscore, covid_stress, covid_impact, anxietyscore, tanner_q3) 
 cor(PV2dataNEW, method = "spearman", use = "complete.obs")
+
+
+
+
+
+
+
+
+
+## tanner_q3 + covid (PV1 and PV2)
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+
+tannerPV1 <- dataNEW %>% select(redcap_event_name, tanner_q3, record_id) %>% filter(redcap_event_name == "PV1") %>% na.omit(tannerPV1) %>% select(tanner_q3, record_id)
+covidPV1 <- dataNEW %>% select(redcap_event_name, cg_covid_q1, record_id) %>% filter(redcap_event_name == "PV1") %>% na.omit(covidPV1) %>% select(cg_covid_q1, record_id)
+TannerCovidPV1Merged <- tannerPV1 %>% left_join(covidPV1, by = "record_id") %>% na.omit(TannerCovidPV1Merged)
+
+CreateTableOne(data = TannerCovidPV1Merged)
+
+table1CovidTannerPV1 <- CreateTableOne(data = TannerCovidPV1Merged, strata = "cg_covid_q1")
+print(table1CovidTannerPV1, nonnormal = c("tanner_q3"))
+
+
+
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+tannerPV2 <- dataNEW %>% select(redcap_event_name, tanner_q3, record_id) %>% filter(redcap_event_name == "PV2") %>% na.omit(tannerPV2) %>% select(tanner_q3, record_id)
+covidPV2 <- dataNEW %>% select(redcap_event_name, cg_covid_q1, record_id) %>% filter(redcap_event_name == "PV2") %>% na.omit(covidPV2) %>% select(cg_covid_q1, record_id)
+TannerCovidPV2Merged <- tannerPV2 %>% left_join(covidPV2, by = "record_id") %>% na.omit(TannerCovidPV2Merged)
+
+CreateTableOne(data = TannerCovidPV2Merged)
+
+table1CovidTannerPV2 <- CreateTableOne(data = TannerCovidPV2Merged, strata = "cg_covid_q1")
+print(table1CovidTannerPV2, nonnormal = c("tanner_q3"))
+
+
+
+
+
+
+
+
+
+
+## painrating_parent_q1 + covid 
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+
+parentPainPV1 <- dataNEW %>% select(redcap_event_name, painrating_parent_q1, record_id) %>% filter(redcap_event_name == "PV1") %>% na.omit(painrating_parent_q1) %>% select(painrating_parent_q1, record_id)
+covidPV1 <- dataNEW %>% select(redcap_event_name, cg_covid_q1, record_id) %>% filter(redcap_event_name == "PV1") %>% na.omit(covidPV1) %>% select(cg_covid_q1, record_id)
+ParentPainCovidPV1Merged <- parentPainPV1 %>% left_join(covidPV1, by = "record_id") %>% na.omit(ParentPainCovidPV1Merged)
+
+CreateTableOne(data = ParentPainCovidPV1Merged)
+
+table1CovidParentPainPV1 <- CreateTableOne(data = ParentPainCovidPV1Merged, strata = "cg_covid_q1")
+print(table1CovidParentPainPV1, nonnormal = c("painrating_parent_q1"))
+
+
+
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+parentPainPV2 <- dataNEW %>% select(redcap_event_name, painrating_parent_q1, record_id) %>% filter(redcap_event_name == "PV2") %>% na.omit(painratingParentPV2) %>% select(painrating_parent_q1, record_id)
+covidPV2 <- dataNEW %>% select(redcap_event_name, cg_covid_q1, record_id) %>% filter(redcap_event_name == "PV2") %>% na.omit(covidPV2) %>% select(cg_covid_q1, record_id)
+ParentPainCovidPV2Merged <- parentPainPV2 %>% left_join(covidPV2, by = "record_id") %>% na.omit(ParentPainCovidPV2Merged)
+
+CreateTableOne(data = ParentPainCovidPV2Merged)
+
+table1CovidParentPainPV2 <- CreateTableOne(data = ParentPainCovidPV2Merged, strata = "cg_covid_q1")
+print(table1CovidParentPainPV2, nonnormal = c("painrating_parent_q1"))
