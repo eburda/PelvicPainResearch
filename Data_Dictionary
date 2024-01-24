@@ -4,8 +4,9 @@ REDCap Variables
 #TODO: include more detailed defs of vars about longer questionnaires
 - redcap_event_name = visit name, differs for parents vs children
 - demo_child_age = child's age (in parent questionnaires)
-- tanner_q3 = child's self-rating of menstrual pain 
-- painrating_parent_q1 = parent's rating of child's menstrual pain (in parent questionnaires)
+- tanner_q3 = children's self-rating of average cramping pain during menstrual periods over the previous 3 months  
+- painrating_parent_q1 = parent's rating of child's average menstrual pain (in parent questionnaires) over the past 3 months
+- cg_covid_q1 = "Have you been suspected of having or been diagnosed with COVID-19? (0 = NO; 1 = YES)" (asked to the parents)
 - promis_eos_[] = 8 vars that are part of the Promis Stress questionnaire (each has a different ending of numbers and letters)
 - promis_swb_[] = 8 vars that are part of the Promis Affect questionnaire (each has a different ending of numbers and letters)
 - csi_child_q1...q24 = 24 vars that are part of the CSI questionnaire (each ends with a number from 1-24)
