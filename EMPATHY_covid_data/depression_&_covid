@@ -1,0 +1,77 @@
+#This file analyzes the depression score and reporting of COVID-19
+
+#NOTE: dataNEW is the output dataframe from the API call to REDCap
+#Select vars needed for depression analysis
+dataNEW1d <- dataNEW %>% select(redcap_event_name, depressionscore, record_id)
+#Rename visit names for parent and child data
+dataNEW1d$redcap_event_name[dataNEW1d$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+dataNEW1d$redcap_event_name[dataNEW1d$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
+dataNEW1d$redcap_event_name[dataNEW1d$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+dataNEW1d$redcap_event_name[dataNEW1d$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+dataNEW1d$redcap_event_name[dataNEW1d$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+dataNEW1d$redcap_event_name[dataNEW1d$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+#Filter out target visit names
+targetd <- c("BL", "PV1", "PV2")
+dataNEW1d <- dataNEW1d %>% filter(redcap_event_name %in% targetd)
+
+#Select vars needed for covid analysis
+dataNEW2d <- dataNEW %>%  select(cg_covid_q1, record_id, redcap_event_name) 
+#Rename visit names for parent and child data
+dataNEW2d$redcap_event_name[dataNEW2d$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
+dataNEW2d$redcap_event_name[dataNEW2d$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
+dataNEW2d$redcap_event_name[dataNEW2d$redcap_event_name == "visit_1_child_arm_1"] <- "PV1"
+dataNEW2d$redcap_event_name[dataNEW2d$redcap_event_name == "visit_1_parent_arm_1"] <- "PV1"
+dataNEW2d$redcap_event_name[dataNEW2d$redcap_event_name == "visit2_child_arm_1"] <- "PV2"
+dataNEW2d$redcap_event_name[dataNEW2d$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
+
+#Filter out target visit names
+dataNEW2d <- dataNEW2d %>% filter(redcap_event_name %in% target)
+
+#Merge depression and covid dataframes by record id
+dataNEW1d %>% left_join(dataNEW2d, by = "record_id") 
+noNA1d <- dataNEW1d %>% na.omit(dataNEW1d)
+noNA2d <- dataNEW2d %>% na.omit(dataNEW2d)
+
+#Prep dataframes for boxplots and tables by visit number
+BLdataNEWDepression <- dataNEW1d %>% select(depressionscore, record_id, redcap_event_name) %>% filter(redcap_event_name == "BL") %>% na.omit(BLdataNEWDepression)
+BLdataNEWCovidd <- dataNEW2d %>% select(cg_covid_q1, record_id, redcap_event_name) %>% filter(redcap_event_name == "BL") %>% na.omit(BLdataNEWCovidd)
+BLDepressCovid <- BLdataNEWDepression %>% left_join(BLdataNEWCovidd, by = "record_id") %>% na.omit(BLDepressCovid) %>% select (depressionscore, cg_covid_q1)
+ggplot(data = BLDepressCovid, aes(x = depressionscore, fill = factor(cg_covid_q1))) + geom_boxplot() + coord_flip()+ labs(title = "Depression Scores at BL by History of COVID-19 Diagnosis", x = "Depression Score", y ="Density", fill = "Previous Diagnosis of COVID-19 (No = 0; Yes = 1)") + theme_classic() + theme(legend.position = "top") + theme(plot.title = element_text(hjust = 0.5))
+
+PV1dataNEWDepression <- dataNEW1d %>% select(depressionscore, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% na.omit(PV1dataNEWDepression)
+PV1dataNEWCovidd <- dataNEW2d %>% select(cg_covid_q1, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV1") %>% na.omit(PV1dataNEWCovidd)
+PV1DepressCovid <- PV1dataNEWDepression %>% left_join(PV1dataNEWCovidd, by = "record_id") %>% na.omit(PV1DepressCovid) %>% select (depressionscore, cg_covid_q1)
+
+ggplot(data = PV1DepressCovid, aes(x = depressionscore, fill = factor(cg_covid_q1))) + geom_boxplot() + coord_flip() +labs(title = "Depression Scores at PV1 by History of COVID-19 Diagnosis", x = "Depression Score", y ="Density", fill = "Previous Diagnosis of COVID-19 (No = 0; Yes = 1)") + theme_classic() + theme(legend.position = "top") + theme(plot.title = element_text(hjust = 0.5))
+
+PV2dataNEWDepression <- dataNEW1d %>% select(depressionscore, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV2") %>% na.omit(PV2dataNEWDepress)
+PV2dataNEWCovidd <- dataNEW2d %>% select(cg_covid_q1, record_id, redcap_event_name) %>% filter(redcap_event_name == "PV2") %>% na.omit(PV2dataNEWCovidd)
+PV2DepressCovid <- PV2dataNEWDepression %>% left_join(PV2dataNEWCovidd, by = "record_id") %>% na.omit(PV2DepressCovid) %>% select (depressionscore, cg_covid_q1)
+
+ggplot(data = PV2DepressCovid, aes(x = depressionscore, fill = factor(cg_covid_q1))) + geom_boxplot() + coord_flip() +labs(title = "Depression Scores at PV2 by History of COVID-19 Diagnosis", x = "Depression Score", y ="Density", fill = "Previous Diagnosis of COVID-19 (No = 0; Yes = 1)") + theme_classic() + theme(legend.position = "top") + theme(plot.title = element_text(hjust = 0.5))
+
+#DepressionCovidMerged <- BLDepressCovid %>% left_join(PV1DepressCovid, by = "record_id")
+#DepressionCovidMergedAll <- DepressionCovidMerged %>%  left_join(PV2DepressCovid, by = "record_id")
+#ggplot(data = DepressionCovidMergedAll, aes(x = depressionscore, color = factor(cg_covid_q1))) + geom_density() 
+
+CreateTableOne(data = BLDepressCovid)
+table1Covidd <- CreateTableOne(data = BLDepressCovid, strata = "cg_covid_q1")
+print(table1Covid, nonnormal = c("depressionscore"))
+table1DepCovidPV1 <- CreateTableOne(data = PV1DepressCovid, strata = "cg_covid_q1")
+print(table1DepCovidPV1, nonnormal = c("depressionscore"))
+table1DepCovidPV2 <- CreateTableOne(data = PV2DepressCovid, strata = "cg_covid_q1")
+print(table1DepCovidPV2, nonnormal = c("depressionscore"))
+
+
+CreateTableOne(data = BLDepressCovid)
+table1Dep <- CreateTableOne(data = BLDepressCovid, strata = "cg_covid_q1")
+print(table1Dep, nonnormal = c("depressionscore"))
+
+CreateTableOne(data = PV1DepressCovid)
+table2Dep <- CreateTableOne(data = PV1DepressCovid, strata = "cg_covid_q1")
+print(table2Dep, nonnormal = c("depressionscore"))
+
+CreateTableOne(data = PV2DepressCovid)
+table3Dep <- CreateTableOne(data = PV2DepressCovid, strata = "cg_covid_q1")
+print(table3Dep, nonnormal = c("depressionscore"))
