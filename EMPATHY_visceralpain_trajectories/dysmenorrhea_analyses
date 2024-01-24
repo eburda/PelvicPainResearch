@@ -11,6 +11,7 @@ qst_rc_bm_merge_DYS <- qst_rc_bm_merge %>% select(tanner_q3, subject_id, redcap_
     TRUE ~ NA_character_ # Handles any other cases (if any)
   ))
 
+#use dataframe from previous analyses
 qst_rc_bm_merge_DYS <- qst_rc_bm_merge_DYS %>%
   mutate(redcap_event_name2 = redcap_event_name)
 
