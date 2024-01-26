@@ -1,6 +1,8 @@
-#TODO: add documentation
+#This file produces a demographics table stratified by whether or not the participant has been in a household that has been exposed to COVID-19 at some point
+
 library(gtsummary)
 
+#Rename visit names for BL, PV1, PV2
 dataNEW$redcap_event_name[dataNEW$redcap_event_name == "baseline_visit_chi_arm_1"] <- "BL"
 dataNEW$redcap_event_name[dataNEW$redcap_event_name == "baselinevisit_pare_arm_1"] <- "BL"
 BLdataNEWDEMOGRAPH <- dataNEW %>% filter(redcap_event_name == "BL")
@@ -13,8 +15,7 @@ dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit2_child_arm_1"] <- 
 dataNEW$redcap_event_name[dataNEW$redcap_event_name == "visit_2_parent_arm_1"] <- "PV2"
 PV2dataNEWDEMOGRAPH <- dataNEW %>% filter(redcap_event_name == "PV2")
 
-#----
-
+#Rename BL vars 
 names(BLdataNEWDEMOGRAPH)[names(BLdataNEWDEMOGRAPH) == 'demo_child_age'] <- 'Age'
 names(BLdataNEWDEMOGRAPH)[names(BLdataNEWDEMOGRAPH) == 'demo_child_ethnicity'] <- 'Ethnicity'
 names(BLdataNEWDEMOGRAPH)[names(BLdataNEWDEMOGRAPH) == 'demo_child_race___1'] <- 'Asian'
@@ -23,13 +24,13 @@ names(BLdataNEWDEMOGRAPH)[names(BLdataNEWDEMOGRAPH) == 'demo_child_race___3'] <-
 names(BLdataNEWDEMOGRAPH)[names(BLdataNEWDEMOGRAPH) == 'demo_child_race___4'] <- 'Native Hawaiian or Other Pacific Islander'
 names(BLdataNEWDEMOGRAPH)[names(BLdataNEWDEMOGRAPH) == 'demo_child_race___5'] <- 'White or Caucasian'
 
+#Rename BL values for Covid and Ethnicity
 BLdataNEWDEMOGRAPH$cg_covid_q1[BLdataNEWDEMOGRAPH$cg_covid_q1 == "0"] <- "No Covid"
 BLdataNEWDEMOGRAPH$cg_covid_q1[BLdataNEWDEMOGRAPH$cg_covid_q1 == "1"] <- "Yes Covid"   
 BLdataNEWDEMOGRAPH$Ethnicity[BLdataNEWDEMOGRAPH$Ethnicity == "1"] <- "Hispanic or Latino"
 BLdataNEWDEMOGRAPH$Ethnicity[BLdataNEWDEMOGRAPH$Ethnicity == "2"] <- "Non-Hispanic or Latino"
 
-#---
-  
+#Rename PV1 vars
 names(PV1dataNEWDEMOGRAPH)[names(PV1dataNEWDEMOGRAPH) == 'demo_child_age'] <- 'Age'
 names(PV1dataNEWDEMOGRAPH)[names(PV1dataNEWDEMOGRAPH) == 'demo_child_ethnicity'] <- 'Ethnicity'
 names(PV1dataNEWDEMOGRAPH)[names(PV1dataNEWDEMOGRAPH) == 'demo_child_race___1'] <- 'Asian'
@@ -38,13 +39,13 @@ names(PV1dataNEWDEMOGRAPH)[names(PV1dataNEWDEMOGRAPH) == 'demo_child_race___3'] 
 names(PV1dataNEWDEMOGRAPH)[names(PV1dataNEWDEMOGRAPH) == 'demo_child_race___4'] <- 'Native Hawaiian or Other Pacific Islander'
 names(PV1dataNEWDEMOGRAPH)[names(PV1dataNEWDEMOGRAPH) == 'demo_child_race___5'] <- 'White or Caucasian'
 
+#Rename PV1 values for Covid and Ethnicity
 PV1dataNEWDEMOGRAPH$cg_covid_q1[PV1dataNEWDEMOGRAPH$cg_covid_q1 == "0"] <- "No Covid"
 PV1dataNEWDEMOGRAPH$cg_covid_q1[PV1dataNEWDEMOGRAPH$cg_covid_q1 == "1"] <- "Yes Covid"   
 PV1dataNEWDEMOGRAPH$Ethnicity[PV1dataNEWDEMOGRAPH$Ethnicity == "1"] <- "Hispanic or Latino"
 PV1dataNEWDEMOGRAPH$Ethnicity[PV1dataNEWDEMOGRAPH$Ethnicity == "2"] <- "Non-Hispanic or Latino"
 
-#---
-
+#Rename PV2 vars
 names(PV2dataNEWDEMOGRAPH)[names(PV2dataNEWDEMOGRAPH) == 'demo_child_age'] <- 'Age'
 names(PV2dataNEWDEMOGRAPH)[names(PV2dataNEWDEMOGRAPH) == 'demo_child_ethnicity'] <- 'Ethnicity'
 names(PV2dataNEWDEMOGRAPH)[names(PV2dataNEWDEMOGRAPH) == 'demo_child_race___1'] <- 'Asian'
@@ -53,6 +54,7 @@ names(PV2dataNEWDEMOGRAPH)[names(PV2dataNEWDEMOGRAPH) == 'demo_child_race___3'] 
 names(PV2dataNEWDEMOGRAPH)[names(PV2dataNEWDEMOGRAPH) == 'demo_child_race___4'] <- 'Native Hawaiian or Other Pacific Islander'
 names(PV2dataNEWDEMOGRAPH)[names(PV2dataNEWDEMOGRAPH) == 'demo_child_race___5'] <- 'White or Caucasian'
 
+#Rename PV2 values for Covid and Ethnicity
 PV2dataNEWDEMOGRAPH$cg_covid_q1[PV2dataNEWDEMOGRAPH$cg_covid_q1 == "0"] <- "No Covid"
 PV2dataNEWDEMOGRAPH$cg_covid_q1[PV2dataNEWDEMOGRAPH$cg_covid_q1 == "1"] <- "Yes Covid"   
 PV2dataNEWDEMOGRAPH$Ethnicity[PV2dataNEWDEMOGRAPH$Ethnicity == "1"] <- "Hispanic or Latino"
